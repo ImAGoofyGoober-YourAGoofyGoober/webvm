@@ -1,32 +1,18 @@
-#
-# Ubuntu Dockerfile
-#
-# https://github.com/dockerfile/ubuntu
-#
-
-# Pull base image.
-FROM ubuntu:14.04
-
-# Install.
-RUN \
-  sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
-  apt-get update && \
-  apt-get -y upgrade && \
-  apt-get install -y build-essential && \
-  apt-get install -y software-properties-common && \
-  apt-get install -y byobu curl git htop man unzip vim wget && \
-  rm -rf /var/lib/apt/lists/*
-
-# Add files.
-ADD root/.bashrc /root/.bashrc
-ADD root/.gitconfig /root/.gitconfig
-ADD root/.scripts /root/.scripts
-
-# Set environment variables.
-ENV HOME /root
-
-# Define working directory.
-WORKDIR /root
-
-# Define default command.
-CMD ["bash"]
+FROM --platform=i386 i386/debian:buster
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get clean && apt-get update && apt-get -y upgrade
+RUN apt-get -y install apt-utils gcc \
+	python3 vim unzip ruby nodejs \
+	fakeroot dbus base whiptail hexedit \
+	patch wamerican ucf manpages \
+	file luajit make lua50 dialog curl \
+	less cowsay netcat-openbsd
+RUN useradd -m user && echo "user:password" | chpasswd
+COPY --chown=user:user ./examples /home/user/examples
+RUN chmod -R +x  /home/user/examples/lua
+# We set WORKDIR, as this gets extracted by Webvm to be used as the cwd. This is optional.
+WORKDIR /home/user/
+# We set env, as this gets extracted by Webvm. This is optional.
+ENV HOME="/home/user" TERM="xterm" USER="user" SHELL="/bin/bash" EDITOR="vim" LANG="en_US.UTF-8" LC_ALL="C"
+RUN echo 'root:password' | chpasswd
+CMD [ "/bin/bash" ]
