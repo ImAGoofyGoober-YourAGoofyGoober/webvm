@@ -45,7 +45,7 @@ jobs:
       steps:
         - uses: actions/setup-node@v3
           with:
-            node-version: '20'
+        - uses: node20
         - uses: actions/checkout@v3
         # Guard clause that cancels the workflow in case of an invalid DOCKERFILE_PATH and/or incorrectly configured Github Pages. 
         # The main reason for choosing this workaround for aborting the workflow is the fact that it does not display the workflow as successful, which can set false expectations.
