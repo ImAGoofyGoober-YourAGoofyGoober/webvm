@@ -43,15 +43,23 @@ jobs:
         actions: 'write' # Required in order to terminate the workflow run.
   
       steps:
-        - uses: actions/setup-node@v3
-          with:
-          using: node20
         - uses: actions/checkout@v3
         # Guard clause that cancels the workflow in case of an invalid DOCKERFILE_PATH and/or incorrectly configured Github Pages. 
         # The main reason for choosing this workaround for aborting the workflow is the fact that it does not display the workflow as successful, which can set false expectations.
         - name: DOCKERFILE_PATH.
-          shell: bash
-          run: |
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: 20.x
+            cache: 'npm'
+       - name: Rebuild the dist/ directory
+            run: npm run prepare
+       - name: Install dependencies
+         run: npm ci
+         shell: bash
+         run: |
+
             # We check whether the Dockerfile_path is valid. 
             if [ ! -f ${{ github.event.inputs.DOCKERFILE_PATH }} ]; then
                 echo "::error title=Invalid Dockerfile path::No file found at ${{ github.event.inputs.DOCKERFILE_PATH }}"
